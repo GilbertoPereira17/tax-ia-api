@@ -49,9 +49,16 @@ router.post("/search", async (req, res) => {
             match_count: 5,
         });
 
-        console.log("DEBUG BUSCA:", {
+        // DEBUG: Busca sem threshold para ver quanto está dando a similaridade
+        const { data: debugDocs } = await supabase.rpc("match_text_debug", {
+            query_embedding: embedding,
+            match_count: 3,
+        });
+
+        console.log("DEBUG BUSCA [VERSION_DEBUG_V2]:", {
             textDocsLength: textDocs?.length || 0,
             textError: textError,
+            debugDocs: debugDocs,
             docDocsLength: documents?.length || 0,
             audioDocsLength: audioDocs?.length || 0
         });
@@ -70,7 +77,11 @@ router.post("/search", async (req, res) => {
 
         // Se não achar nada
         if (allResults.length === 0) {
-            return res.json({ results: [], message: "Nenhum documento encontrado com threshold 0.4" });
+            return res.json({
+                results: [],
+                message: "Nenhum documento encontrado com threshold 0.4",
+                debug_similarities: debugDocs // Retorna o debug para o frontend
+            });
         }
 
         return res.json({ results: allResults, count: allResults.length });
