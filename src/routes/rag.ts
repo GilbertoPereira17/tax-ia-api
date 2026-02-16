@@ -31,21 +31,21 @@ router.post("/search", async (req, res) => {
         // Busca em Documentos Processados (PDFs/Imagens antigos)
         const { data: documents, error: docError } = await supabase.rpc("match_processed_records", {
             query_embedding: embedding,
-            match_threshold: 0.4, // Reduzido drasticamente para 0.4
+            match_threshold: 0.6, // Aumentado para 0.6 (filtro mais forte)
             match_count: 5,
         });
 
         // Busca em Transcrições de Áudio
         const { data: audioDocs, error: audioError } = await supabase.rpc("match_audio_transcriptions", {
             query_embedding: embedding,
-            match_threshold: 0.4, // Reduzido para 0.4
+            match_threshold: 0.6,
             match_count: 5,
         });
 
         // NOVA BUSCA: Busca em Extrações de Texto (Emails/Textos do WeWeb)
         const { data: textDocs, error: textError } = await supabase.rpc("match_text_extractions", {
             query_embedding: embedding,
-            match_threshold: 0.4, // Reduzido para 0.4
+            match_threshold: 0.6,
             match_count: 5,
         });
 
