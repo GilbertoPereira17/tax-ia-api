@@ -31,21 +31,21 @@ router.post("/search", async (req, res) => {
         // Busca em Documentos Processados (PDFs/Imagens antigos)
         const { data: documents, error: docError } = await supabase.rpc("match_processed_records", {
             query_embedding: embedding,
-            match_threshold: 0.6, // Aumentado para 0.6 (filtro mais forte)
+            match_threshold: 0.4,
             match_count: 5,
         });
 
         // Busca em Transcrições de Áudio
         const { data: audioDocs, error: audioError } = await supabase.rpc("match_audio_transcriptions", {
             query_embedding: embedding,
-            match_threshold: 0.6,
+            match_threshold: 0.4,
             match_count: 5,
         });
 
         // NOVA BUSCA: Busca em Extrações de Texto (Emails/Textos do WeWeb)
         const { data: textDocs, error: textError } = await supabase.rpc("match_text_extractions", {
             query_embedding: embedding,
-            match_threshold: 0.6,
+            match_threshold: 0.4,
             match_count: 5,
         });
 
@@ -89,8 +89,17 @@ router.post("/search", async (req, res) => {
         if (allResults.length === 0) {
             return res.json({
                 results: [],
-                message: "Nenhum documento encontrado com threshold 0.4",
-                debug_similarities: debugDocs // Retorna o debug para o frontend
+                // message: "Nenhum documento encontrado com threshold 0.4", // REMOVIDO DUPLICADO
+                message: "Nenhum documento encontrado com threshold 0.35",
+                debug_similarities: debugDocs,
+                debug_info: {
+                    text_docs_count: textDocs?.length,
+                    errors: {
+                        docError: docError?.message,
+                        audioError: audioError?.message,
+                        textError: textError?.message // AQUI VAI APARECER O ERRO REAL
+                    }
+                }
             });
         }
 
